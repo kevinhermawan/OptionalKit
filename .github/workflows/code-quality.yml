@@ -1,0 +1,27 @@
+name: Code Quality
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-test:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build and test
+        run: swift test --enable-code-coverage
+
+      - name: Export coverage
+        run: xcrun llvm-cov export -format="lcov" .build/debug/OptionalKitPackageTests.xctest/Contents/MacOS/OptionalKitPackageTests -instr-profile .build/debug/codecov/default.profdata > info.lcov
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./info.lcov
